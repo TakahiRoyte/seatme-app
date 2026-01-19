@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to all restaurants for customer view
+    match /restaurants/{restaurant} {
+      allow read: if true;
+      
+      // Allow write access for staff (in production, add authentication)
+      allow write: if true;
+    }
+  }
+}

@@ -1,0 +1,115 @@
+.restaurant-detail {
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.9375rem;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: var(--color-brand);
+}
+
+.detail-card {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.detail-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-text-primary);
+}
+
+.last-updated {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.status-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.status-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.wait-time-section {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+}
+
+.wait-time-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.wait-time-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.info-card {
+  margin-top: var(--spacing-lg);
+}
+
+.info-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-primary);
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+}
+
+.info-label {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.info-value {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .detail-title {
+    font-size: 1.75rem;
+  }
+  
+  .wait-time-display {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,112 @@
+.customer-view {
+  min-height: 100vh;
+  padding-bottom: var(--spacing-2xl);
+}
+
+.header {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-xl);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-brand);
+  margin-bottom: var(--spacing-xs);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.restaurant-list {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.restaurant-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.restaurant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.restaurant-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+}
+
+.restaurant-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-primary);
+}
+
+.restaurant-status {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.wait-time {
+  text-align: right;
+}
+
+.wait-time-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.wait-time-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.125rem;
+}
+
+.footer {
+  text-align: center;
+  margin-top: var(--spacing-2xl);
+  padding: var(--spacing-lg);
+}
+
+.staff-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.staff-link:hover {
+  color: var(--color-brand);
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .restaurant-name {
+    font-size: 1.25rem;
+  }
+  
+  .wait-time-value {
+    font-size: 1.25rem;
+  }
+}

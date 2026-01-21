@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, onSnapshot, query, orderBy, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Restaurant } from '../types/restaurant';
-import EditRestaurantModal from '../components/EditRestaurantModal';
+import { getOverallStatus } from '../lib/availabilityUtils';
 import './StaffDashboard.css';
 
 export default function StaffDashboard() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
   const [newRestaurantName, setNewRestaurantName] = useState('');
 
   useEffect(() => {
@@ -22,8 +21,10 @@ export default function StaffDashboard() {
         restaurantData.push({
           id: doc.id,
           name: data.name,
-          status: data.status,
-          waitTime: data.waitTime,
+          tables: data.tables.map((t: any) => ({
+            ...t,
+            occupiedSince: t.occupiedSince?.toDate(),
+          })),
           lastUpdated: data.lastUpdated?.toDate() || new Date(),
           info: data.info,
           order: data.order,
@@ -36,17 +37,6 @@ export default function StaffDashboard() {
     return () => unsubscribe();
   }, []);
 
-  const handleStatusChange = async (restaurantId: string, newStatus: 'open' | 'busy' | 'full') => {
-    try {
-      await updateDoc(doc(db, 'restaurants', restaurantId), {
-        status: newStatus,
-        lastUpdated: Timestamp.now(),
-      });
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
-
   const handleAddRestaurant = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRestaurantName.trim()) return;
@@ -54,8 +44,12 @@ export default function StaffDashboard() {
     try {
       await addDoc(collection(db, 'restaurants'), {
         name: newRestaurantName,
-        status: 'open',
-        waitTime: '0-10 min',
+        tables: [
+          { id: 'T1', type: 'table', capacity: 4, status: 'available' },
+          { id: 'T2', type: 'table', capacity: 4, status: 'available' },
+          { id: 'C1', type: 'counter', capacity: 1, status: 'available' },
+          { id: 'C2', type: 'counter', capacity: 1, status: 'available' },
+        ],
         lastUpdated: Timestamp.now(),
         info: {
           seatType: 'Table / Counter',
@@ -103,56 +97,69 @@ export default function StaffDashboard() {
           </form>
         </div>
 
-        <div className="restaurant-list">
-          {restaurants.map((restaurant) => (
-            <div key={restaurant.id} className="restaurant-item card">
-              <div className="restaurant-header">
-                <span className={`status-dot ${restaurant.status}`}></span>
-                <h3 className="restaurant-name">{restaurant.name}</h3>
-                <button
-                  onClick={() => setEditingRestaurant(restaurant)}
-                  className="edit-button"
-                >
-                  Edit Details
-                </button>
-              </div>
+        <div className="restaurant-list card">
+          <div className="restaurant-table-header">
+            <span className="col-name">Restaurant</span>
+            <span className="col-status">Status</span>
+            <span className="col-available">Available</span>
+            <span className="col-occupied">Occupied</span>
+            <span className="col-reserved">Reserved</span>
+            <span className="col-total">Total</span>
+            <span className="col-actions">Actions</span>
+          </div>
 
-              <div className="status-buttons">
-                <button
-                  className={`status-btn ${restaurant.status === 'open' ? 'active open' : ''}`}
-                  onClick={() => handleStatusChange(restaurant.id, 'open')}
-                >
-                  Open
-                </button>
-                <button
-                  className={`status-btn ${restaurant.status === 'busy' ? 'active busy' : ''}`}
-                  onClick={() => handleStatusChange(restaurant.id, 'busy')}
-                >
-                  Busy
-                </button>
-                <button
-                  className={`status-btn ${restaurant.status === 'full' ? 'active full' : ''}`}
-                  onClick={() => handleStatusChange(restaurant.id, 'full')}
-                >
-                  Full
-                </button>
-              </div>
+          <div className="restaurant-rows">
+            {restaurants.map((restaurant) => {
+              const overallStatus = getOverallStatus(restaurant.tables);
+              const availableCount = restaurant.tables.filter(t => t.status === 'available').length;
+              const occupiedCount = restaurant.tables.filter(t => t.status === 'occupied').length;
+              const reservedCount = restaurant.tables.filter(t => t.status === 'reserved').length;
+              const totalCount = restaurant.tables.length;
 
-              <div className="quick-wait-time">
-                <span className="wait-label">Quick Wait Time:</span>
-                <span className="wait-value">{restaurant.waitTime}</span>
-              </div>
-            </div>
-          ))}
+              return (
+                <div key={restaurant.id} className="restaurant-table-row">
+                  <div className="col-name">
+                    <span className={`status-dot ${overallStatus.icon === '🟢' ? 'open' : overallStatus.icon === '🟡' ? 'busy' : 'full'}`}></span>
+                    <span className="restaurant-name-text">{restaurant.name}</span>
+                  </div>
+                  
+                  <div className="col-status">
+                    <span className="status-badge">
+                      {overallStatus.icon} {overallStatus.text}
+                    </span>
+                  </div>
+
+                  <div className="col-available">
+                    <span className="count-badge available">{availableCount}</span>
+                  </div>
+
+                  <div className="col-occupied">
+                    <span className="count-badge occupied">{occupiedCount}</span>
+                  </div>
+
+                  <div className="col-reserved">
+                    <span className="count-badge reserved">{reservedCount}</span>
+                  </div>
+
+                  <div className="col-total">
+                    <span className="count-badge total">{totalCount}</span>
+                  </div>
+
+                  <div className="col-actions">
+                    <Link
+                      to={`/staff/restaurant/${restaurant.id}`}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Manage →
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-
-      {editingRestaurant && (
-        <EditRestaurantModal
-          restaurant={editingRestaurant}
-          onClose={() => setEditingRestaurant(null)}
-        />
-      )}
     </div>
   );
 }
+

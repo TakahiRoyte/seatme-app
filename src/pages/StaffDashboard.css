@@ -31,7 +31,7 @@
   flex: 1;
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--spacing-md);
   font-family: var(--font-family);
   font-size: 0.9375rem;
   outline: none;
@@ -42,113 +42,223 @@
   border-color: var(--color-brand);
 }
 
-.restaurant-list {
+.staff-dashboard .restaurant-list {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  /* Padding comes from .card */
+}
+
+/* Table-style header */
+.restaurant-table-header {
+  display: grid;
+  grid-template-columns: minmax(200px, 3fr) minmax(150px, 2fr) 100px 100px 100px 100px auto;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md); /* Internal padding matching rows */
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--color-border);
+  font-family: var(--font-family);
+  width: 100%;
+}
+
+/* Table-style row container */
+.restaurant-rows {
   display: flex;
   flex-direction: column;
+  width: 100%;
+}
+
+/* Table-style row */
+.restaurant-table-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 3fr) minmax(150px, 2fr) 100px 100px 100px 100px auto;
   gap: var(--spacing-md);
+  align-items: center;
+  padding: var(--spacing-md);
+  transition: background-color 0.2s ease;
+  width: 100%;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.restaurant-item {
-  padding: var(--spacing-lg);
+.restaurant-table-row:last-child {
+  border-bottom: none;
 }
 
-.restaurant-item .restaurant-header {
+.restaurant-table-row:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.col-name {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-xs);
+  min-width: 0;
 }
 
-.restaurant-item .restaurant-name {
-  flex: 1;
-  font-size: 1.125rem;
+.restaurant-name-text {
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
-.edit-button {
-  padding: var(--spacing-xs) var(--spacing-md);
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  font-family: var(--font-family);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.edit-button:hover {
-  color: var(--color-brand);
-}
-
-.status-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-}
-
-.status-btn {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: white;
-  font-family: var(--font-family);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--color-text-primary);
-}
-
-.status-btn:hover {
-  border-color: var(--color-text-secondary);
-}
-
-.status-btn.active {
-  color: white;
-}
-
-.status-btn.active.open {
-  background: var(--color-status-open);
-  border-color: var(--color-status-open);
-}
-
-.status-btn.active.busy {
-  background: var(--color-status-busy);
-  border-color: var(--color-status-busy);
-}
-
-.status-btn.active.full {
-  background: var(--color-status-full);
-  border-color: var(--color-status-full);
-}
-
-.quick-wait-time {
+.col-status {
   display: flex;
-  gap: var(--spacing-sm);
-  font-size: 0.9375rem;
+  align-items: center;
+  min-width: 0;
 }
 
-.wait-label {
-  color: var(--color-text-secondary);
-}
-
-.wait-value {
-  font-weight: 600;
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-@media (max-width: 640px) {
-  .dashboard-title {
-    font-size: 1.75rem;
+.col-available,
+.col-occupied,
+.col-reserved,
+.col-total {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.count-badge.available {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-status-open);
+}
+
+.count-badge.occupied {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-status-full);
+}
+
+.count-badge.reserved {
+  background: rgba(234, 179, 8, 0.1);
+  color: var(--color-status-busy);
+}
+
+.count-badge.total {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border);
+}
+
+.col-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.btn-sm {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+  .restaurant-table-header,
+  .restaurant-table-row {
+    grid-template-columns: minmax(140px, 2fr) minmax(130px, 1.5fr) 80px 80px 80px 80px 110px;
   }
-  
-  .add-form {
-    flex-direction: column;
+
+  .restaurant-name-text {
+    font-size: 0.9375rem;
   }
-  
-  .status-buttons {
+
+  .count-badge {
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.9375rem;
+  }
+
+  .status-badge {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .restaurant-table-header {
+    display: none;
+  }
+
+  .restaurant-table-row {
     grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+
+  .col-name {
+    font-size: 1.125rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .col-status {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .col-available,
+  .col-occupied,
+  .col-reserved,
+  .col-total {
+    justify-content: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .col-available::before {
+    content: 'Available: ';
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .col-occupied::before {
+    content: 'Occupied: ';
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .col-reserved::before {
+    content: 'Reserved: ';
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .col-total::before {
+    content: 'Total: ';
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .col-actions {
+    justify-content: stretch;
+    margin-top: var(--spacing-sm);
+  }
+
+  .btn-sm {
+    width: 100%;
   }
 }

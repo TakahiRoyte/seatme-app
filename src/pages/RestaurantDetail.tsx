@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Restaurant } from '../types/restaurant';
+import { Restaurant, GroupSizeRange } from '../types/restaurant';
+import { calculateGroupAvailability, getOverallStatus } from '../lib/availabilityUtils';
 import './RestaurantDetail.css';
 
 export default function RestaurantDetail() {
@@ -20,8 +21,10 @@ export default function RestaurantDetail() {
         setRestaurant({
           id: doc.id,
           name: data.name,
-          status: data.status,
-          waitTime: data.waitTime,
+          tables: data.tables.map((t: any) => ({
+            ...t,
+            occupiedSince: t.occupiedSince?.toDate(),
+          })),
           lastUpdated: data.lastUpdated?.toDate() || new Date(),
           info: data.info,
           order: data.order,
@@ -32,19 +35,6 @@ export default function RestaurantDetail() {
 
     return () => unsubscribe();
   }, [id]);
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'open':
-        return 'Walk-in Welcome';
-      case 'busy':
-        return 'Few Seats Available';
-      case 'full':
-        return 'Full / Waitlist';
-      default:
-        return 'Unknown';
-    }
-  };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {
@@ -76,6 +66,11 @@ export default function RestaurantDetail() {
     );
   }
 
+  const groupAvailability = calculateGroupAvailability(restaurant.tables);
+  const overallStatus = getOverallStatus(restaurant.tables);
+  const availableCount = restaurant.tables.filter(t => t.status === 'available').length;
+  const totalCount = restaurant.tables.length;
+
   return (
     <div className="restaurant-detail">
       <div className="container">
@@ -88,13 +83,32 @@ export default function RestaurantDetail() {
           <p className="last-updated">Last updated: {formatTime(restaurant.lastUpdated)}</p>
 
           <div className="status-section">
-            <span className={`status-dot ${restaurant.status}`}></span>
-            <span className="status-text">{getStatusText(restaurant.status)}</span>
+            <span className={`status-dot ${overallStatus.icon === '🟢' ? 'open' : overallStatus.icon === '🟡' ? 'busy' : 'full'}`}></span>
+            <span className="status-text">{overallStatus.text}</span>
           </div>
 
-          <div className="wait-time-section">
-            <div className="wait-time-label">ESTIMATED WAIT</div>
-            <div className="wait-time-display">{restaurant.waitTime}</div>
+          <div className="table-summary">
+            <div className="summary-label">Available Tables</div>
+            <div className="summary-value">{availableCount} / {totalCount}</div>
+          </div>
+
+          <div className="group-breakdown">
+            <h3 className="breakdown-title">Availability by Group Size</h3>
+            {(Object.keys(groupAvailability) as GroupSizeRange[]).map((groupSize) => {
+              const availability = groupAvailability[groupSize];
+              return (
+                <div key={groupSize} className="group-detail-row">
+                  <span className="group-label">Group {groupSize}</span>
+                  <span className="group-status">
+                    <span className="group-icon">{availability.icon}</span>
+                    <span className="group-text">{availability.text}</span>
+                    {availability.wait && (
+                      <span className="group-wait">{availability.wait}</span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

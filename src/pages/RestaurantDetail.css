@@ -48,13 +48,14 @@
   color: var(--color-text-primary);
 }
 
-.wait-time-section {
+.table-summary {
   background: var(--color-bg);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
-.wait-time-label {
+.summary-label {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -62,10 +63,64 @@
   margin-bottom: var(--spacing-xs);
 }
 
-.wait-time-display {
+.summary-value {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--color-text-primary);
+}
+
+.group-breakdown {
+  text-align: left;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-border);
+}
+
+.breakdown-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
+}
+
+.group-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.group-detail-row:last-child {
+  border-bottom: none;
+}
+
+.group-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.group-status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.group-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.group-text {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.group-wait {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 
 .info-card {
@@ -109,7 +164,11 @@
     font-size: 1.75rem;
   }
   
-  .wait-time-display {
+  .summary-value {
     font-size: 2rem;
+  }
+  
+  .group-icon {
+    font-size: 1.125rem;
   }
 }

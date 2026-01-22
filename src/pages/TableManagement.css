@@ -137,11 +137,6 @@
   border-color: var(--color-status-full);
 }
 
-.status-btn.active.reserved {
-  background: var(--color-status-busy);
-  border-color: var(--color-status-busy);
-}
-
 .time-info {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
@@ -151,7 +146,7 @@
 /* Summary Section - Now at top */
 .summary-section {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-2xl);
 }
@@ -204,10 +199,6 @@
   color: var(--color-status-full);
 }
 
-.summary-value.reserved {
-  color: var(--color-status-busy);
-}
-
 .summary-value.total {
   color: var(--color-text-primary);
 }
@@ -225,11 +216,7 @@
   opacity: 1;
 }
 
-/* Reservation Modal */
-.reservation-modal {
-  max-width: 400px;
-}
-
+/* Shared modal styles */
 .modal-title {
   font-size: 1.5rem;
   font-weight: 700;

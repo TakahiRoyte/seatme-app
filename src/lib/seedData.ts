@@ -49,7 +49,7 @@ export async function migrateToTableModel() {
         { id: 'C4', type: 'counter', capacity: 1, status: 'occupied', occupiedSince: Timestamp.now() },
         { id: 'C5', type: 'counter', capacity: 1, status: 'occupied', occupiedSince: Timestamp.now() },
         { id: 'C6', type: 'counter', capacity: 1, status: 'available' },
-        { id: 'T1', type: 'table', capacity: 4, status: 'reserved', reservationWindow: { start: '19:00', end: '21:00' } },
+        { id: 'T1', type: 'table', capacity: 4, status: 'occupied', occupiedSince: Timestamp.now() },
       ] as Table[],
       info: {
         seatType: 'Counter',

@@ -2,12 +2,8 @@ export interface Table {
   id: string;              // "T1", "T2", "C1", etc.
   type: 'table' | 'counter';
   capacity: number;        // 1, 2, 4, 6, etc.
-  status: 'available' | 'occupied' | 'reserved';
+  status: 'available' | 'occupied';
   occupiedSince?: Date | null;
-  reservationWindow?: {
-    start: string;         // "19:00"
-    end: string;           // "21:00"
-  } | null;
 }
 
 export interface Restaurant {
@@ -30,4 +26,3 @@ export interface GroupAvailability {
 }
 
 export type GroupSizeRange = '1-2' | '3-4' | '5-6' | '7+';
-

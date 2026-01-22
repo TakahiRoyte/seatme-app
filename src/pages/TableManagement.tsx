@@ -18,10 +18,6 @@ const cleanTableForSave = (table: Table) => {
     cleanTable.occupiedSince = table.occupiedSince;
   }
 
-  if (table.reservationWindow) {
-    cleanTable.reservationWindow = table.reservationWindow;
-  }
-
   return cleanTable;
 };
 
@@ -42,7 +38,6 @@ export default function TableManagement() {
   const { id } = useParams<{ id: string }>();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
-  const [reservationTable, setReservationTable] = useState<Table | null>(null);
   const [editingDetailsTable, setEditingDetailsTable] = useState<Table | null>(null);
   const [showAddTableModal, setShowAddTableModal] = useState(false);
   const [newTableId, setNewTableId] = useState('');
@@ -61,8 +56,11 @@ export default function TableManagement() {
           id: doc.id,
           name: data.name,
           tables: data.tables.map((t: any) => ({
-            ...t,
-            occupiedSince: t.occupiedSince?.toDate(),
+            id: t.id,
+            type: t.type,
+            capacity: t.capacity,
+            status: t.status === 'available' ? 'available' : 'occupied',
+            occupiedSince: t.occupiedSince?.toDate() || null,
           })),
           lastUpdated: data.lastUpdated?.toDate() || new Date(),
           info: data.info,
@@ -84,7 +82,6 @@ export default function TableManagement() {
           ...table,
           status: newStatus,
           occupiedSince: newStatus === 'occupied' ? (Timestamp.now() as unknown as Date) : null,
-          reservationWindow: newStatus === 'reserved' ? table.reservationWindow || null : null,
         });
       }
 
@@ -285,12 +282,6 @@ export default function TableManagement() {
             </div>
           </div>
           <div className="summary-card">
-            <div className="summary-label">Reserved</div>
-            <div className="summary-value reserved">
-              {restaurant.tables.filter(t => t.status === 'reserved').length}
-            </div>
-          </div>
-          <div className="summary-card">
             <div className="summary-label">Total</div>
             <div className="summary-value total">
               {restaurant.tables.length}
@@ -347,13 +338,6 @@ export default function TableManagement() {
                   {table.type === 'table' ? '🍽️' : '🪑'}
                 </span>
                 {table.id}
-                <span 
-                  className="edit-table-icon" 
-                  onClick={() => setEditingDetailsTable(table)}
-                  title="Edit table"
-                >
-                  ✏️
-                </span>
               </span>
               
               <span className="col-capacity">{table.capacity}</span>
@@ -371,22 +355,11 @@ export default function TableManagement() {
                 >
                   🔴 Occupied
                 </button>
-                <button
-                  className={`status-btn ${table.status === 'reserved' ? 'active reserved' : ''}`}
-                  onClick={() => setReservationTable(table)}
-                >
-                  🟡 Reserved
-                </button>
               </div>
               
               <span className="col-time">
                 {table.status === 'occupied' && table.occupiedSince && table.occupiedSince instanceof Date && (
                   <span className="time-info">since {formatTime(table.occupiedSince)}</span>
-                )}
-                {table.status === 'reserved' && table.reservationWindow && (
-                  <span className="time-info">
-                    {table.reservationWindow.start}–{table.reservationWindow.end}
-                  </span>
                 )}
                 {table.status === 'available' && <span className="time-info">—</span>}
               </span>
@@ -416,14 +389,6 @@ export default function TableManagement() {
         })}
         </div>
       </div>
-
-      {reservationTable && (
-        <ReservationModal
-          table={reservationTable}
-          restaurantId={restaurant.id}
-          onClose={() => setReservationTable(null)}
-        />
-      )}
 
       {editingDetailsTable && (
         <TableDetailsModal
@@ -577,100 +542,6 @@ function AddTableModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  );
-}
-
-// Reservation Modal Component
-interface ReservationModalProps {
-  table: Table;
-  restaurantId: string;
-  onClose: () => void;
-}
-
-function ReservationModal({ table, restaurantId, onClose }: ReservationModalProps) {
-  const [startTime, setStartTime] = useState(table.reservationWindow?.start || '19:00');
-  const [endTime, setEndTime] = useState(table.reservationWindow?.end || '21:00');
-
-  const handleSave = async () => {
-    try {
-      const restaurantRef = doc(db, 'restaurants', restaurantId);
-      const restaurantDoc = await onSnapshot(restaurantRef, (snapshot) => {
-        const data = snapshot.data();
-        if (!data) return;
-
-        const updatedTables = data.tables.map((t: any) => {
-          if (t.id === table.id) {
-            const reservedTable: Table = {
-              id: t.id,
-              type: t.type,
-              capacity: t.capacity,
-              status: 'reserved',
-              reservationWindow: { start: startTime, end: endTime },
-            };
-
-            return cleanTableForSave(reservedTable);
-          }
-
-          const existingTable: Table = {
-            id: t.id,
-            type: t.type,
-            capacity: t.capacity,
-            status: t.status,
-            occupiedSince: t.occupiedSince || null,
-            reservationWindow: t.reservationWindow || null,
-          };
-
-          return cleanTableForSave(existingTable);
-        });
-
-        updateDoc(restaurantRef, {
-          tables: updatedTables,
-          lastUpdated: Timestamp.now(),
-        });
-      });
-
-      restaurantDoc();
-      onClose();
-    } catch (error) {
-      console.error('Error setting reservation:', error);
-    }
-  };
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal reservation-modal" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">Set Reservation - {table.id}</h2>
-
-        <div className="form-group">
-          <label className="form-label">Start Time</label>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">End Time</label>
-          <input
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            className="form-input"
-          />
-        </div>
-
-        <div className="modal-actions">
-          <button onClick={handleSave} className="btn btn-primary">
-            Set Reservation
-          </button>
-          <button onClick={onClose} className="btn btn-secondary">
-            Cancel
-          </button>
-        </div>
       </div>
     </div>
   );

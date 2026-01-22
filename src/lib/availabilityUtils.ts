@@ -7,51 +7,67 @@ import { Table, GroupAvailability, GroupSizeRange } from '../types/restaurant';
 export function calculateGroupAvailability(
   tables: Table[]
 ): Record<GroupSizeRange, GroupAvailability> {
-  const availableTables = tables.filter(t => t.status === 'available');
+  const availableTables = tables.filter((t) => t.status === 'available');
+
+  const freeingSoonTables = tables.filter((t) => {
+    if (t.status === 'available') return false;
+
+    if (t.status === 'occupied' && t.occupiedSince instanceof Date) {
+      // Consider an occupied table freeing soon if occupied for less than 30 minutes
+      return minutesSince(t.occupiedSince) <= 30;
+    }
+
+    return false;
+  });
 
   return {
-    '1-2': getAvailabilityStatus(availableTables, 2),
-    '3-4': getAvailabilityStatus(availableTables, 4),
-    '5-6': getAvailabilityStatus(availableTables, 6),
-    '7+': getAvailabilityStatus(availableTables, 7),
+    '1-2': getAvailabilityStatus(availableTables, freeingSoonTables, tables, 2),
+    '3-4': getAvailabilityStatus(availableTables, freeingSoonTables, tables, 4),
+    '5-6': getAvailabilityStatus(availableTables, freeingSoonTables, tables, 6),
+    '7+': getAvailabilityStatus(availableTables, freeingSoonTables, tables, 7),
   };
 }
 
 /**
  * Determine availability status for a specific group size
- * 
- * Logic:
- * - 3+ suitable tables = 🟢 Available
- * - 1-2 suitable tables = 🟡 Limited (5-15 min wait)
- * - 0 suitable tables = 🔴 Unlikely (15+ min wait)
  */
 function getAvailabilityStatus(
   availableTables: Table[],
+  freeingSoonTables: Table[],
+  allTables: Table[],
   minCapacity: number
 ): GroupAvailability {
-  const suitableTables = availableTables.filter(t => t.capacity >= minCapacity);
-  const count = suitableTables.length;
+  const suitableAvailable = availableTables.filter(t => t.capacity >= minCapacity);
+  const suitableFreeingSoon = freeingSoonTables.filter(t => t.capacity >= minCapacity);
+  const suitableTotal = allTables.filter(t => t.capacity >= minCapacity).length;
 
-  if (count >= 3) {
+  const availableCount = suitableAvailable.length;
+  const soonCount = suitableFreeingSoon.length;
+  const capacityRatio = suitableTotal === 0 ? 0 : availableCount / suitableTotal;
+
+  // Adaptive thresholds: >=50% of suitable seats free => Available
+  if (capacityRatio >= 0.5 || availableCount >= 2) {
     return {
       icon: '🟢',
-      text: 'Available',
+      text: `Available (${availableCount} fit)`,
       wait: null,
     };
   }
 
-  if (count >= 1) {
+  // Limited when some are free or freeing soon
+  if (availableCount >= 1 || soonCount >= 1) {
+    const wait = availableCount >= 1 ? '5-15 min' : '10-20 min';
     return {
       icon: '🟡',
-      text: 'Limited',
-      wait: '5-15 min',
+      text: availableCount >= 1 ? 'Limited' : 'Freeing soon',
+      wait,
     };
   }
 
   return {
     icon: '🔴',
     text: 'Unlikely',
-    wait: '15+ min',
+    wait: '20+ min',
   };
 }
 
@@ -89,17 +105,7 @@ export function formatTime(date: Date): string {
   });
 }
 
-/**
- * Check if a reservation is currently active
- */
-export function isReservationActive(reservationWindow?: {
-  start: string;
-  end: string;
-}): boolean {
-  if (!reservationWindow) return false;
-
-  const now = new Date();
-  const currentTime = formatTime(now);
-
-  return currentTime >= reservationWindow.start && currentTime <= reservationWindow.end;
+function minutesSince(date: Date): number {
+  const diffMs = Date.now() - date.getTime();
+  return diffMs / 60000;
 }

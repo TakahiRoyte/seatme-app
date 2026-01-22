@@ -23,6 +23,7 @@ export default function CustomerView() {
           name: data.name,
           tables: data.tables.map((t: any) => ({
             ...t,
+            status: t.status === 'available' ? 'available' : 'occupied',
             occupiedSince: t.occupiedSince?.toDate(),
           })),
           lastUpdated: data.lastUpdated?.toDate() || new Date(),

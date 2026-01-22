@@ -11,8 +11,6 @@ interface EditRestaurantModalProps {
 
 export default function EditRestaurantModal({ restaurant, onClose }: EditRestaurantModalProps) {
   const [name, setName] = useState(restaurant.name);
-  const [status, setStatus] = useState(restaurant.status);
-  const [waitTime, setWaitTime] = useState(restaurant.waitTime);
   const [seatType, setSeatType] = useState(restaurant.info.seatType);
   const [smoking, setSmoking] = useState(restaurant.info.smoking);
   const [parking, setParking] = useState(restaurant.info.parking);
@@ -23,8 +21,6 @@ export default function EditRestaurantModal({ restaurant, onClose }: EditRestaur
     try {
       await updateDoc(doc(db, 'restaurants', restaurant.id), {
         name,
-        status,
-        waitTime,
         info: {
           seatType,
           smoking,
@@ -52,7 +48,7 @@ export default function EditRestaurantModal({ restaurant, onClose }: EditRestaur
         <h2 className="modal-title">Edit: {restaurant.name}</h2>
 
         <div className="edit-section">
-          <h3 className="edit-section-title">Edit Restaurant</h3>
+          <h3 className="edit-section-title">Edit Restaurant Details</h3>
 
           <div className="form-group">
             <label className="form-label">Restaurant Name</label>
@@ -61,41 +57,6 @@ export default function EditRestaurantModal({ restaurant, onClose }: EditRestaur
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="form-input"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Current Status</label>
-            <div className="status-selector">
-              <button
-                className={`status-circle ${status === 'open' ? 'selected' : ''} open`}
-                onClick={() => setStatus('open')}
-                aria-label="Open"
-              />
-              <button
-                className={`status-circle ${status === 'busy' ? 'selected' : ''} busy`}
-                onClick={() => setStatus('busy')}
-                aria-label="Busy"
-              />
-              <button
-                className={`status-circle ${status === 'full' ? 'selected' : ''} full`}
-                onClick={() => setStatus('full')}
-                aria-label="Full"
-              />
-            </div>
-            <p className="status-selected">
-              Selected: <strong>{status.charAt(0).toUpperCase() + status.slice(1)}</strong>
-            </p>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Wait Time Display</label>
-            <input
-              type="text"
-              value={waitTime}
-              onChange={(e) => setWaitTime(e.target.value)}
-              className="form-input"
-              placeholder="e.g., 0-10 min"
             />
           </div>
 

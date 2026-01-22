@@ -23,6 +23,7 @@ export default function StaffDashboard() {
           name: data.name,
           tables: data.tables.map((t: any) => ({
             ...t,
+            status: t.status === 'available' ? 'available' : 'occupied',
             occupiedSince: t.occupiedSince?.toDate(),
           })),
           lastUpdated: data.lastUpdated?.toDate() || new Date(),
@@ -103,7 +104,6 @@ export default function StaffDashboard() {
             <span className="col-status">Status</span>
             <span className="col-available">Available</span>
             <span className="col-occupied">Occupied</span>
-            <span className="col-reserved">Reserved</span>
             <span className="col-total">Total</span>
             <span className="col-actions">Actions</span>
           </div>
@@ -113,7 +113,6 @@ export default function StaffDashboard() {
               const overallStatus = getOverallStatus(restaurant.tables);
               const availableCount = restaurant.tables.filter(t => t.status === 'available').length;
               const occupiedCount = restaurant.tables.filter(t => t.status === 'occupied').length;
-              const reservedCount = restaurant.tables.filter(t => t.status === 'reserved').length;
               const totalCount = restaurant.tables.length;
 
               return (
@@ -137,10 +136,6 @@ export default function StaffDashboard() {
                     <span className="count-badge occupied">{occupiedCount}</span>
                   </div>
 
-                  <div className="col-reserved">
-                    <span className="count-badge reserved">{reservedCount}</span>
-                  </div>
-
                   <div className="col-total">
                     <span className="count-badge total">{totalCount}</span>
                   </div>
@@ -162,4 +157,3 @@ export default function StaffDashboard() {
     </div>
   );
 }
-

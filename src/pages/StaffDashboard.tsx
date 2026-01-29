@@ -4,9 +4,11 @@ import { collection, onSnapshot, query, orderBy, addDoc, Timestamp } from 'fireb
 import { db } from '../lib/firebase';
 import { Restaurant } from '../types/restaurant';
 import { getOverallStatus } from '../lib/availabilityUtils';
+import { useTranslation } from 'react-i18next';
 import './StaffDashboard.css';
 
 export default function StaffDashboard() {
+  const { t } = useTranslation();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [newRestaurantName, setNewRestaurantName] = useState('');
@@ -77,35 +79,35 @@ export default function StaffDashboard() {
     <div className="staff-dashboard">
       <div className="container">
         <Link to="/" className="back-link">
-          ← Back to Viewer
+          ← {t('staffDashboard.backToViewer')}
         </Link>
 
-        <h1 className="dashboard-title">Staff Dashboard</h1>
+        <h1 className="dashboard-title">{t('staffDashboard.title')}</h1>
 
         <div className="add-restaurant-card card">
-          <h2 className="section-title">Add New Restaurant</h2>
+          <h2 className="section-title">{t('staffDashboard.addNewRestaurant')}</h2>
           <form onSubmit={handleAddRestaurant} className="add-form">
             <input
               type="text"
-              placeholder="Restaurant Name"
+              placeholder={t('staffDashboard.restaurantNamePlaceholder')}
               value={newRestaurantName}
               onChange={(e) => setNewRestaurantName(e.target.value)}
               className="restaurant-input"
             />
             <button type="submit" className="btn btn-primary">
-              Add
+              {t('common.add')}
             </button>
           </form>
         </div>
 
         <div className="restaurant-list card">
           <div className="restaurant-table-header">
-            <span className="col-name">Restaurant</span>
-            <span className="col-status">Status</span>
-            <span className="col-available">Available</span>
-            <span className="col-occupied">Occupied</span>
-            <span className="col-total">Total</span>
-            <span className="col-actions">Actions</span>
+            <span className="col-name">{t('common.restaurant')}</span>
+            <span className="col-status">{t('common.status')}</span>
+            <span className="col-available">{t('common.available')}</span>
+            <span className="col-occupied">{t('common.occupied')}</span>
+            <span className="col-total">{t('common.total')}</span>
+            <span className="col-actions">{t('common.actions')}</span>
           </div>
 
           <div className="restaurant-rows">
@@ -124,7 +126,7 @@ export default function StaffDashboard() {
                   
                   <div className="col-status">
                     <span className="status-badge">
-                      {overallStatus.icon} {overallStatus.text}
+                      {overallStatus.icon} {t(`availability.${overallStatus.statusKey}`)}
                     </span>
                   </div>
 
@@ -145,7 +147,7 @@ export default function StaffDashboard() {
                       to={`/staff/restaurant/${restaurant.id}`}
                       className="btn btn-primary btn-sm"
                     >
-                      Manage →
+                      {t('staffDashboard.manage')} →
                     </Link>
                   </div>
                 </div>

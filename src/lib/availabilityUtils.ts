@@ -49,25 +49,26 @@ function getAvailabilityStatus(
   if (capacityRatio >= 0.5 || availableCount >= 2) {
     return {
       icon: '🟢',
-      text: `Available (${availableCount} fit)`,
-      wait: null,
+      statusKey: 'availableWithCount',
+      statusParams: { count: availableCount },
+      waitKey: undefined,
     };
   }
 
   // Limited when some are free or freeing soon
   if (availableCount >= 1 || soonCount >= 1) {
-    const wait = availableCount >= 1 ? '5-15 min' : '10-20 min';
+    const wait = availableCount >= 1 ? 'wait5_15' : 'wait10_20';
     return {
       icon: '🟡',
-      text: availableCount >= 1 ? 'Limited' : 'Freeing soon',
-      wait,
+      statusKey: availableCount >= 1 ? 'limited' : 'freeingSoon',
+      waitKey: wait,
     };
   }
 
   return {
     icon: '🔴',
-    text: 'Unlikely',
-    wait: '20+ min',
+    statusKey: 'unlikely',
+    waitKey: 'wait20_plus',
   };
 }
 
@@ -77,21 +78,21 @@ function getAvailabilityStatus(
  */
 export function getOverallStatus(tables: Table[]): {
   icon: '🟢' | '🟡' | '🔴';
-  text: string;
+  statusKey: string;
 } {
   const availableCount = tables.filter(t => t.status === 'available').length;
   const totalCount = tables.length;
   const availableRatio = availableCount / totalCount;
 
   if (availableRatio >= 0.6) {
-    return { icon: '🟢', text: 'Seats Available' };
+    return { icon: '🟢', statusKey: 'seatsAvailable' };
   }
 
   if (availableRatio >= 0.2) {
-    return { icon: '🟡', text: 'Few Seats Left' };
+    return { icon: '🟡', statusKey: 'fewSeatsLeft' };
   }
 
-  return { icon: '🔴', text: 'Full / Waitlist' };
+  return { icon: '🔴', statusKey: 'fullWaitlist' };
 }
 
 /**

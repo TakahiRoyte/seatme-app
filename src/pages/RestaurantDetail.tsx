@@ -4,9 +4,11 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Restaurant, GroupSizeRange } from '../types/restaurant';
 import { calculateGroupAvailability, getOverallStatus } from '../lib/availabilityUtils';
+import { useTranslation } from 'react-i18next';
 import './RestaurantDetail.css';
 
 export default function RestaurantDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,9 +59,9 @@ export default function RestaurantDetail() {
     return (
       <div className="restaurant-detail">
         <div className="container">
-          <p>Restaurant not found</p>
+          <p>{t('common.notFound')}</p>
           <Link to="/" className="btn btn-primary">
-            Back to List
+            {t('restaurantDetail.backToList')}
           </Link>
         </div>
       </div>
@@ -75,35 +77,35 @@ export default function RestaurantDetail() {
     <div className="restaurant-detail">
       <div className="container">
         <Link to="/" className="back-link">
-          ← Back to List
+          ← {t('restaurantDetail.backToList')}
         </Link>
 
         <div className="detail-card card">
           <h1 className="detail-title">{restaurant.name}</h1>
-          <p className="last-updated">Last updated: {formatTime(restaurant.lastUpdated)}</p>
+          <p className="last-updated">{t('restaurantDetail.lastUpdated', { time: formatTime(restaurant.lastUpdated) })}</p>
 
           <div className="status-section">
             <span className={`status-dot ${overallStatus.icon === '🟢' ? 'open' : overallStatus.icon === '🟡' ? 'busy' : 'full'}`}></span>
-            <span className="status-text">{overallStatus.text}</span>
+            <span className="status-text">{t(`availability.${overallStatus.statusKey}`)}</span>
           </div>
 
           <div className="table-summary">
-            <div className="summary-label">Available Tables</div>
+            <div className="summary-label">{t('restaurantDetail.availableTables')}</div>
             <div className="summary-value">{availableCount} / {totalCount}</div>
           </div>
 
           <div className="group-breakdown">
-            <h3 className="breakdown-title">Availability by Group Size</h3>
+            <h3 className="breakdown-title">{t('restaurantDetail.availabilityByGroupSize')}</h3>
             {(Object.keys(groupAvailability) as GroupSizeRange[]).map((groupSize) => {
               const availability = groupAvailability[groupSize];
               return (
                 <div key={groupSize} className="group-detail-row">
-                  <span className="group-label">Group {groupSize}</span>
+                  <span className="group-label">{t('customerView.groupSize', { range: groupSize })}</span>
                   <span className="group-status">
                     <span className="group-icon">{availability.icon}</span>
-                    <span className="group-text">{availability.text}</span>
-                    {availability.wait && (
-                      <span className="group-wait">{availability.wait}</span>
+                    <span className="group-text">{t(`availability.${availability.statusKey}`, availability.statusParams)}</span>
+                    {availability.waitKey && (
+                      <span className="group-wait">{t(`availability.${availability.waitKey}`)}</span>
                     )}
                   </span>
                 </div>
@@ -113,18 +115,18 @@ export default function RestaurantDetail() {
         </div>
 
         <div className="info-card card">
-          <h2 className="info-title">Restaurant Info</h2>
+          <h2 className="info-title">{t('restaurantDetail.restaurantInfo')}</h2>
           <div className="info-grid">
             <div className="info-row">
-              <span className="info-label">Seat Type</span>
+              <span className="info-label">{t('restaurantDetail.seatType')}</span>
               <span className="info-value">{restaurant.info.seatType}</span>
             </div>
             <div className="info-row">
-              <span className="info-label">Smoking</span>
+              <span className="info-label">{t('restaurantDetail.smoking')}</span>
               <span className="info-value">{restaurant.info.smoking}</span>
             </div>
             <div className="info-row">
-              <span className="info-label">Parking</span>
+              <span className="info-label">{t('restaurantDetail.parking')}</span>
               <span className="info-value">{restaurant.info.parking}</span>
             </div>
           </div>

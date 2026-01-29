@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Restaurant, GroupSizeRange } from '../types/restaurant';
+import { useTranslation } from 'react-i18next';
 import { calculateGroupAvailability, getOverallStatus } from '../lib/availabilityUtils';
 import './CustomerView.css';
 
 export default function CustomerView() {
+  const { t } = useTranslation();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,8 +51,8 @@ export default function CustomerView() {
   return (
     <div className="customer-view">
       <header className="header">
-        <h1 className="title">SeatMe</h1>
-        <p className="subtitle">Real-time Seat Availability</p>
+        <h1 className="title">{t('customerView.title')}</h1>
+        <p className="subtitle">{t('customerView.subtitle')}</p>
       </header>
 
       <div className="restaurant-list">
@@ -76,12 +78,12 @@ export default function CustomerView() {
                   const availability = groupAvailability[groupSize];
                   return (
                     <div key={groupSize} className="group-row">
-                      <span className="group-size">Group {groupSize}:</span>
+                      <span className="group-size">{t('customerView.groupSize', { range: groupSize })}:</span>
                       <span className="availability-status">
                         <span className="status-icon">{availability.icon}</span>
-                        <span className="status-text">{availability.text}</span>
-                        {availability.wait && (
-                          <span className="wait-time">({availability.wait})</span>
+                        <span className="status-text">{t(`availability.${availability.statusKey}`, availability.statusParams)}</span>
+                        {availability.waitKey && (
+                          <span className="wait-time">({t(`availability.${availability.waitKey}`)})</span>
                         )}
                       </span>
                     </div>
@@ -95,7 +97,7 @@ export default function CustomerView() {
 
       <footer className="footer">
         <Link to="/staff" className="staff-link">
-          Staff Access →
+          {t('customerView.staffAccess')} →
         </Link>
       </footer>
     </div>

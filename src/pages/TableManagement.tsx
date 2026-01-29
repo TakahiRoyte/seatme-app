@@ -4,6 +4,7 @@ import { doc, onSnapshot, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Restaurant, Table } from '../types/restaurant';
 import { formatTime } from '../lib/availabilityUtils';
+import { useTranslation } from 'react-i18next';
 import './TableManagement.css';
 
 const cleanTableForSave = (table: Table) => {
@@ -35,6 +36,7 @@ const reorderTables = (tables: Table[], fromId: string, toId: string) => {
 };
 
 export default function TableManagement() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,7 +109,7 @@ export default function TableManagement() {
 
     const parsedCapacity = Number(newTableCapacity);
     if (!parsedCapacity || parsedCapacity < 1) {
-      alert('Capacity must be at least 1.');
+      alert(t('tableManagement.capacityError'));
       return;
     }
 
@@ -115,7 +117,7 @@ export default function TableManagement() {
       (table) => table.id.toLowerCase() === trimmedId.toLowerCase()
     );
     if (idExists) {
-      alert('Table ID already exists.');
+      alert(t('tableManagement.idExists'));
       return;
     }
 
@@ -168,7 +170,7 @@ export default function TableManagement() {
     if (!trimmedId) return;
 
     if (!updatedCapacity || updatedCapacity < 1) {
-      alert('Capacity must be at least 1.');
+      alert(t('tableManagement.capacityError'));
       return;
     }
 
@@ -249,9 +251,9 @@ export default function TableManagement() {
     return (
       <div className="table-management">
         <div className="container">
-          <p>Restaurant not found</p>
+          <p>{t('tableManagement.restaurantNotFound')}</p>
           <Link to="/staff" className="btn btn-primary">
-            Back to Dashboard
+            {t('tableManagement.backToDashboard')}
           </Link>
         </div>
       </div>
@@ -262,27 +264,27 @@ export default function TableManagement() {
     <div className="table-management">
       <div className="container">
         <Link to="/staff" className="back-link">
-          ← Back to Dashboard
+          ← {t('tableManagement.backToDashboard')}
         </Link>
 
-        <h1 className="page-title">{restaurant.name} - Table Management</h1>
+        <h1 className="page-title">{restaurant.name} - {t('tableManagement.pageTitle')}</h1>
 
         {/* Summary Section - Moved to top */}
         <div className="summary-section">
           <div className="summary-card">
-            <div className="summary-label">Available</div>
+            <div className="summary-label">{t('common.available')}</div>
             <div className="summary-value available">
               {restaurant.tables.filter(t => t.status === 'available').length}
             </div>
           </div>
           <div className="summary-card">
-            <div className="summary-label">Occupied</div>
+            <div className="summary-label">{t('common.occupied')}</div>
             <div className="summary-value occupied">
               {restaurant.tables.filter(t => t.status === 'occupied').length}
             </div>
           </div>
           <div className="summary-card">
-            <div className="summary-label">Total</div>
+            <div className="summary-label">{t('common.total')}</div>
             <div className="summary-value total">
               {restaurant.tables.length}
             </div>
@@ -295,17 +297,17 @@ export default function TableManagement() {
             className="btn btn-primary"
             onClick={() => setShowAddTableModal(true)}
           >
-            Add Table
+            {t('tableManagement.addTable')}
           </button>
         </div>
 
         <div className="table-list">
           <div className="table-header">
-            <span className="col-seat">Seat</span>
-            <span className="col-capacity">Capacity</span>
-            <span className="col-status">Status</span>
-            <span className="col-time">Time</span>
-            <span className="col-actions">Actions</span>
+            <span className="col-seat">{t('tableManagement.seat')}</span>
+            <span className="col-capacity">{t('common.capacity')}</span>
+            <span className="col-status">{t('common.status')}</span>
+            <span className="col-time">{t('tableManagement.time')}</span>
+            <span className="col-actions">{t('common.actions')}</span>
           </div>
 
           {restaurant.tables.map((table) => {
@@ -347,19 +349,19 @@ export default function TableManagement() {
                   className={`status-btn ${table.status === 'available' ? 'active available' : ''}`}
                   onClick={() => handleStatusChange(table.id, 'available')}
                 >
-                  🟢 Available
+                  🟢 {t('common.available')}
                 </button>
                 <button
                   className={`status-btn ${table.status === 'occupied' ? 'active occupied' : ''}`}
                   onClick={() => handleStatusChange(table.id, 'occupied')}
                 >
-                  🔴 Occupied
+                  🔴 {t('common.occupied')}
                 </button>
               </div>
               
               <span className="col-time">
                 {table.status === 'occupied' && table.occupiedSince && table.occupiedSince instanceof Date && (
-                  <span className="time-info">since {formatTime(table.occupiedSince)}</span>
+                  <span className="time-info">{t('tableManagement.since', { time: formatTime(table.occupiedSince) })}</span>
                 )}
                 {table.status === 'available' && <span className="time-info">—</span>}
               </span>
@@ -370,17 +372,17 @@ export default function TableManagement() {
                     type="button"
                     className="edit-table-btn"
                     onClick={() => setEditingDetailsTable(table)}
-                    title="Edit seat name and capacity"
+                    title={t('tableManagement.editSeatNameCapacity')}
                   >
-                    ✏️ Edit
+                    ✏️ {t('common.edit')}
                   </button>
                   <button
                     type="button"
                     className="remove-table-btn"
                     onClick={() => handleRemoveTable(table.id)}
-                    title="Remove table"
+                    title={t('tableManagement.removeTable')}
                   >
-                    🗑️ Remove
+                    🗑️ {t('common.remove')}
                   </button>
                 </div>
               </div>
@@ -420,7 +422,13 @@ interface TableDetailsModalProps {
   onClose: () => void;
 }
 
+export interface GroupAvailability {
+  icon: '🟢' | '🟡' | '🔴';
+  statusKey: string;
+}
+
 function TableDetailsModal({ table, onSave, onClose }: TableDetailsModalProps) {
+  const { t } = useTranslation();
   const [idValue, setIdValue] = useState(table.id);
   const [capacityValue, setCapacityValue] = useState(table.capacity);
 
@@ -432,11 +440,11 @@ function TableDetailsModal({ table, onSave, onClose }: TableDetailsModalProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">Edit Table</h2>
+        <h2 className="modal-title">{t('tableManagement.editTable')}</h2>
 
         <form onSubmit={handleSubmit} className="edit-table-form">
           <div className="form-group">
-            <label className="form-label">Seat Name</label>
+            <label className="form-label">{t('tableManagement.seatName')}</label>
             <input
               type="text"
               className="form-input"
@@ -446,7 +454,7 @@ function TableDetailsModal({ table, onSave, onClose }: TableDetailsModalProps) {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Capacity</label>
+            <label className="form-label">{t('common.capacity')}</label>
             <input
               type="number"
               min="1"
@@ -458,10 +466,10 @@ function TableDetailsModal({ table, onSave, onClose }: TableDetailsModalProps) {
 
           <div className="modal-actions">
             <button type="submit" className="btn btn-primary">
-              Save Changes
+              {t('common.saveChanges')}
             </button>
             <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -491,38 +499,39 @@ function AddTableModal({
   onSubmit,
   onClose,
 }: AddTableModalProps) {
+  const { t } = useTranslation();
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">Add Table</h2>
+        <h2 className="modal-title">{t('tableManagement.addTable')}</h2>
 
         <form className="add-table-form" onSubmit={onSubmit}>
           <div className="table-form-grid">
             <div className="form-group">
-              <label className="form-label">Table ID</label>
+              <label className="form-label">{t('tableManagement.seat')}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="e.g. T5"
+                placeholder={t('tableManagement.tableIdPlaceholder')}
                 value={newTableId}
                 onChange={(e) => setNewTableId(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Type</label>
+              <label className="form-label">{t('tableManagement.type')}</label>
               <select
                 className="form-input"
                 value={newTableType}
                 onChange={(e) => setNewTableType(e.target.value as Table['type'])}
               >
-                <option value="table">Table</option>
-                <option value="counter">Counter</option>
+                <option value="table">{t('common.table')}</option>
+                <option value="counter">{t('common.counter')}</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Capacity</label>
+              <label className="form-label">{t('common.capacity')}</label>
               <input
                 type="number"
                 min="1"
@@ -535,10 +544,10 @@ function AddTableModal({
 
           <div className="modal-actions">
             <button type="submit" className="btn btn-primary">
-              Add Table
+              {t('tableManagement.addTable')}
             </button>
             <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>

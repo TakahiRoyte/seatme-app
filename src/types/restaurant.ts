@@ -21,8 +21,9 @@ export interface Restaurant {
 
 export interface GroupAvailability {
   icon: '🟢' | '🟡' | '🔴';
-  text: string;
-  wait: string | null;
+  statusKey: string;
+  statusParams?: Record<string, any>;
+  waitKey?: string;
 }
 
 export type GroupSizeRange = '1-2' | '3-4' | '5-6' | '7+';

@@ -1,5 +1,6 @@
 import test, { afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { calculateGroupAvailability } from '../.test-build/lib/availabilityUtils.js';
 
 const now = Date.parse('2026-10-28T04:00:00Z');
@@ -51,4 +52,19 @@ test('capacity constraints and input immutability are preserved', () => {
 test('no tables yields no unsupported availability claim', () => {
   freezeClock();
   for (const result of Object.values(calculateGroupAvailability([]))) assert.equal(result.statusKey, 'unlikely');
+});
+
+test('all emitted availability and wait keys resolve to existing Japanese messages', async () => {
+  freezeClock();
+  const messages = JSON.parse(await readFile(new URL('../src/locales/ja.json', import.meta.url), 'utf8')).availability;
+  const available = { ...table(null), status: 'available' };
+  const scenarios = [[], [table(new Date(now))], [available], [available, table(null), table(null)]];
+  const emitted = new Set();
+  for (const tables of scenarios) for (const result of Object.values(calculateGroupAvailability(tables))) {
+    for (const key of [result.statusKey, result.waitKey].filter(Boolean)) {
+      assert.equal(typeof messages[key], 'string', key);
+      emitted.add(key);
+    }
+  }
+  assert.deepEqual([...emitted].sort(), ['availableWithCount', 'freeingSoon', 'limited', 'unlikely', 'wait10_20', 'wait20_plus', 'wait5_15'].sort());
 });

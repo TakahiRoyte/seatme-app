@@ -225,39 +225,12 @@
 
 ---
 
-## 11. Techスタック
+## 11. 現在の実装と検証
 
-### Frontend
-- **Framework**: SvelteKit (Svelte 5)
-  - App Router architecture
-  - Server Components & Server Actions
-  - TypeScript
-
-### Backend
-- **Runtime**: Node.js 20+
-- **API**: SvelteKit API Routes
-- **Real-time Updates**: Server-Sent Events (SSE)
-  - Note: On Vercel, SSE connections have 60s timeout on Hobby plan
-  - Fallback to polling available for production stability
-
-### Database
-- **Development**: SQLite (local file-based)
-- **Production**: [Turso](https://turso.tech/) (distributed libSQL)
-  - SQLite-compatible cloud database
-  - Free tier: 9GB storage, 1B row reads/month, 25M row writes/month
-- **ORM**: Drizzle
-
-### Deployment & Infrastructure
-- **Hosting**: [Vercel](https://vercel.com/)
-  - Serverless deployment
-  - Free tier: 100GB bandwidth/month, unlimited deployments
-  - Automatic HTTPS, CDN, and edge network
-- **CI/CD**: GitHub integration with Vercel
-- **Environment Management**: 
-  - Local: `.env` (gitignored)
-  - Production: Vercel environment variables
-
-### Development Tools
-- **Linting**: ESLint 9
-- **Type Checking**: TypeScript strict mode
-- **Package Manager**: pnpm
+- Frontend: React 18 + React Router 6 + Vite 6 + TypeScript 5.6。
+- Data: Firebase Firestoreのリアルタイム購読。SvelteKit/Turso/SSE構成は現在のコードには実装されていません。
+- Package manager: npm（package-lock.jsonで固定）。
+- `npm ci --ignore-scripts` で依存を準備し、`npm test` / `npm run lint` / `npm run build` で検証します。判定関数のテスト・buildにはFirebase接続や本番認証情報は不要です。
+- 画面の実データ表示にはFirestore接続が別途必要です。本番デプロイやDBアクセス権の安全性は、build成功だけでは保証されません。
+- 空席見込みの日時条件: [判定仕様と受入条件](docs/features/availability.md)。
+- GitHub Actionsは単体・lint・build・依存監査を実行します。Preview/本番デプロイは自動設定していません。

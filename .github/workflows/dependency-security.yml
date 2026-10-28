@@ -41,4 +41,3 @@ jobs:
           done
           if [ "$READY" != 1 ]; then cat "$RUNNER_TEMP/firestore.log"; exit 1; fi
           npm run test:emulator
-

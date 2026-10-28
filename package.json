@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test:security": "node --test tests/security/*.test.mjs"
+    "test:security": "node --test tests/security/*.test.mjs",
+    "test:emulator": "node --test tests/emulator/*.test.mjs"
   },
   "dependencies": {
     "firebase": "^10.8.0",

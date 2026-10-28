@@ -6,7 +6,7 @@ The sample application's production dependency audit reported 17 affected packag
 
 - AC1: The entire installed graph, including development dependencies, passes npm audit --audit-level=low. Verified locally against the npm registry on 2026-10-28: zero vulnerabilities. CI repeats the registry check; advisories may change later.
 - AC2: React Router supports the application's four route patterns, restaurant IDs, navigation/history, and internal customer/staff links. Four dependency contract tests pass in total, including the offline Firebase test below.
-- AC3: React 18 and Firebase 10 remain installed at their existing versions; Firestore references, Timestamp and GeoPoint public APIs work offline. No claim of Firestore write/query/emulator E2E coverage.
+- AC3: React 18 and Firebase 10 remain installed at their existing versions; Firestore references, Timestamp and GeoPoint public APIs work offline. The actual SDK additionally passes an isolated Firestore 1.22.0 emulator contract: create/read/update, Timestamp encoding, transaction, snapshot notification, delete and denial outside the allowed synthetic collection. Auth and browser E2E remain untested.
 - AC4: TypeScript and the Vite production build pass in a non-root Linux container with networking disabled. CI repeats tests and build from a clean npm ci --ignore-scripts.
 
 ## Changes
@@ -19,6 +19,6 @@ Relevant advisories: [protobufjs](https://github.com/advisories/GHSA-j3f2-48v5-c
 
 ## Reproduce
 
-Use Node >=24.11.0. Run npm ci --ignore-scripts, npm audit --audit-level=low, npm run test:security, then npm run build. The tests use a demo Firebase identity and do not import production configuration. Browser E2E, real backend behavior, independent Agent review and protected Preview remain open; this PR is a draft.
+Use Node >=24.11.0. Run npm ci --ignore-scripts, npm audit --audit-level=low, npm run test:security, then npm run build. The tests use a demo Firebase identity and do not import production configuration. The emulator test uses demo-apew-seatme and never falls back to a cloud project. CI downloads the official fixed emulator JAR and verifies its SHA-256 before running with Java 21. Browser E2E, production-service equivalence, independent Agent review and protected Preview remain open; this PR is a draft.
 
 This maintenance was implemented by the controlling Codex session, not the currently blocked autonomous Developer. It is independent of the future-availability bugfix PR #1. Merge and production deployment require a separate decision.

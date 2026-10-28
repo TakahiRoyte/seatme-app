@@ -6,6 +6,7 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    {import.meta.env.MODE === 'apew-preview' && <div role="status" className="preview-notice">合成データのプレビュー</div>}
     <App />
   </StrictMode>,
 )

@@ -18,7 +18,9 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=low
       - run: npm run test:security
+      - run: npm run test:preview
       - run: npm run build
+      - run: npm run build:preview
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
         with:
           distribution: temurin

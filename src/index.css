@@ -188,3 +188,5 @@ body {
     padding: var(--spacing-lg);
   }
 }
+
+.preview-notice { padding: 0.6rem 1rem; text-align: center; background: #fff3cd; color: #594500; font-weight: 600; }

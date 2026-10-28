@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
+import { previewConfiguration } from './previewConfig';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,7 +12,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const preview = previewConfiguration(import.meta.env.MODE, window.location.origin);
+const app = initializeApp(preview?.firebase ?? firebaseConfig);
 
 // Initialize Firestore
-export const db = getFirestore(app);
+export const db = preview ? initializeFirestore(app, preview.firestore) : getFirestore(app);

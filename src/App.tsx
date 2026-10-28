@@ -6,12 +6,7 @@ import TableManagement from './pages/TableManagement';
 
 function App() {
   return (
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<CustomerView />} />
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />

@@ -16,7 +16,7 @@ test('preview output removes production Firebase values even when Vite receives 
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const file = join(directory, entry.name);
       if (entry.isDirectory()) await collect(file);
-      else if (/\.(js|html|json)$/.test(entry.name)) text += await readFile(file, 'utf8');
+      else text += (await readFile(file)).toString('utf8');
     }
   }
   await collect(output);

@@ -13,8 +13,9 @@ export function calculateGroupAvailability(
     if (t.status === 'available') return false;
 
     if (t.status === 'occupied' && t.occupiedSince instanceof Date) {
-      // Consider an occupied table freeing soon if occupied for less than 30 minutes
-      return minutesSince(t.occupiedSince) <= 30;
+      // Only valid occupancy ages from 0 through 30 minutes can count as freeing soon.
+      const elapsedMinutes = minutesSince(t.occupiedSince);
+      return elapsedMinutes >= 0 && elapsedMinutes <= 30;
     }
 
     return false;

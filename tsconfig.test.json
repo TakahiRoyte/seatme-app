@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": ".test-build",
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src/lib/availabilityUtils.ts", "src/types/restaurant.ts"]
+}

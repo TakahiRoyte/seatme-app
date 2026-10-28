@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test:security": "node --test tests/security/*.test.mjs",
-    "test:emulator": "node --test tests/emulator/*.test.mjs"
+    "test:emulator": "node --test tests/emulator/*.test.mjs",
+    "test:preview": "node --test tests/preview/*.test.mjs",
+    "build:preview": "tsc -b && vite build --mode apew-preview"
   },
   "dependencies": {
     "firebase": "^10.8.0",

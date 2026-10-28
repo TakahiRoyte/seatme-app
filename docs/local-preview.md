@@ -7,3 +7,5 @@ Build with npm run build:preview and validate configuration with npm run test:pr
 Acceptance: the actual customer and staff routes must read synthetic data; staff changes must propagate through Firestore to the customer view; a reset must restore seed data; stopping must release Preview resources. APEW manages source-commit metadata, build artifacts, isolation, seed/reset, gateway headers and browser E2E evidence. This document defines the contract, not a claim that all acceptance tests have passed.
 
 No production Firebase connection or deployment. Protected remote Preview, Access/MFA and independent review remain required. This branch is based on the unmerged dependency remediation branch; review it as a stacked draft. Implemented by the controlling Codex session while autonomous Developer accounting is unresolved.
+
+Independent review found that unused production Vite values could remain in the Preview bundle. The compile-time mode branch now removes that configuration. A real Vite build test injects canaries into all six VITE_FIREBASE fields and checks every served JS/HTML/JSON artifact for absence; it failed before the fix and passes after it.

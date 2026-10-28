@@ -2,7 +2,11 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, initializeFirestore } from 'firebase/firestore';
 import { previewConfiguration } from './previewConfig';
 
-const firebaseConfig = {
+// A compile-time branch lets Vite remove production values from Preview output.
+const preview = import.meta.env.MODE === 'apew-preview'
+  ? previewConfiguration('apew-preview', window.location.origin)
+  : null;
+const firebaseConfig = import.meta.env.MODE === 'apew-preview' ? preview!.firebase : {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -12,7 +16,6 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const preview = previewConfiguration(import.meta.env.MODE, window.location.origin);
 const app = initializeApp(preview?.firebase ?? firebaseConfig);
 
 // Initialize Firestore

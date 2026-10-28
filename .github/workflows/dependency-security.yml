@@ -1,0 +1,43 @@
+name: Dependency security
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  dependency-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.11.1'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=low
+      - run: npm run test:security
+      - run: npm run build
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Real Firestore emulator contract
+        env:
+          FIRESTORE_EMULATOR_HOST: 127.0.0.1:8080
+        run: |
+          EMULATOR_JAR="$RUNNER_TEMP/firestore-1.22.0.jar"
+          curl --fail --location --silent --show-error --output "$EMULATOR_JAR" https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-firestore-emulator-v1.22.0.jar
+          echo "9b6498b7f62714d67f48f59b3818883cd682dbcd46b9f59511de81c97bb5166c  $EMULATOR_JAR" | sha256sum --check
+          java -Xmx768m -jar "$EMULATOR_JAR" --host 127.0.0.1 --port 8080 --project_id demo-apew-seatme --rules tests/emulator/firestore.rules > "$RUNNER_TEMP/firestore.log" 2>&1 &
+          EMULATOR_PID=$!
+          trap 'kill "$EMULATOR_PID" 2>/dev/null || true; wait "$EMULATOR_PID" 2>/dev/null || true' EXIT
+          READY=0
+          for attempt in {1..45}; do
+            if curl --silent --output /dev/null --max-time 2 http://127.0.0.1:8080/; then READY=1; break; fi
+            if ! kill -0 "$EMULATOR_PID" 2>/dev/null; then cat "$RUNNER_TEMP/firestore.log"; exit 1; fi
+            sleep 1
+          done
+          if [ "$READY" != 1 ]; then cat "$RUNNER_TEMP/firestore.log"; exit 1; fi
+          npm run test:emulator
